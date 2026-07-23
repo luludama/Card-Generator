@@ -7,4 +7,4 @@ services:
     startCommand: gunicorn wsgi:app
     envVars:
       - key: AI_PROVIDER
-        value: disabled
+        value: openai
