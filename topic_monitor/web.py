@@ -6,6 +6,7 @@ load_dotenv()
 from datetime import datetime, timezone
 import json
 import os
+from werkzeug.exceptions import HTTPException
 
 from PIL import Image
 
@@ -211,11 +212,16 @@ def create_app(workspace="data"):
     @app.errorhandler(Exception)
     def unexpected(error):
         app.logger.exception("Unhandled workspace error")
-        return jsonify({"error": "伺服器錯誤：" + str(error)}), 502
+        return jsonify({"error": "伺服器錯誤：" + str(error)}), 500
 
     @app.get("/")
     def index():
         return """<!doctype html><html lang='zh-Hant'><meta charset='utf-8'>
+
+    @app.get("/favicon.ico")
+    def favicon():
+        return "", 204
+
 <title>宣傳圖卡生成器</title><style>
 :root{--ink:#11233d;--paper:#f5f7fa;--red:#d64545;--blue:#5b7086;--green:#1f6b5a;--gold:#c88118}body{max-width:1080px;margin:32px auto;padding:0 16px;font-family:'Microsoft JhengHei',sans-serif;color:var(--ink);background:var(--paper)}h1{margin:0}.subhead{margin:6px 0 18px;color:#526477}.status{display:inline-block;margin:10px 0 18px;padding:7px 10px;border-radius:99px;background:#e9eff6;color:#41566d;font-size:14px}.workflow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.step-card{--step:var(--blue);--surface:#eef3f7;border:0;border-top:8px solid var(--step);border-radius:14px;padding:18px;box-shadow:0 5px 16px rgba(17,35,61,.08);transition:opacity .2s,transform .2s}.step-card.is-active{box-shadow:0 8px 22px rgba(17,35,61,.16)}.step-card.is-complete .step-kicker:after{content:'完成';margin-left:8px;padding:2px 7px;border-radius:12px;background:#fff;color:var(--step);font-size:12px}.step-card.is-locked{opacity:.48;pointer-events:none}.step-card.is-locked .step-body{display:none}.draft{--step:var(--red);--surface:#fce9e6}.review{--step:var(--blue);--surface:#e9f0f6}.preview{--step:var(--green);--surface:#e6f3ee}.export{--step:var(--gold);--surface:#fff3df}.step-kicker{font-size:13px;font-weight:bold;color:var(--step);letter-spacing:.06em}.step-card h2{margin:4px 0 12px;font-size:24px}.step-summary{margin:0 0 12px;color:#526477;font-size:14px}input,textarea{box-sizing:border-box;width:100%;padding:10px;margin:6px 0 12px;border:1px solid #cbd5e1;border-radius:7px;font:inherit;background:#fff}textarea{min-height:110px}button{background:var(--ink);color:#fff;border:0;border-radius:7px;padding:10px 16px;margin:5px 4px 5px 0;font:inherit;cursor:pointer}.secondary{background:var(--red)}.hidden{display:none}.notice{padding:10px;background:#fff;border-radius:7px;color:#41566d}.error{color:#b42318}img{max-width:100%;margin-top:12px}.style-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.style-choice{padding:4px;border:2px solid transparent;background:#fff;color:var(--ink)}.style-choice img{width:100%;margin:0}.style-choice.selected{border-color:var(--green)}.color-variants{margin:8px 0}.color-variants button{font-weight:bold}.color-variants button[data-color='black']{background:#111111;color:#fff}.color-variants button[data-color='red']{background:#B42318;color:#fff}.color-variants button[data-color='teal']{background:#073B4C;color:#F7F4EC}.color-variants button.selected{outline:3px solid #fff;box-shadow:0 0 0 2px var(--green)}#output img{border-radius:10px}@media(max-width:720px){.workflow{grid-template-columns:1fr}.style-grid{grid-template-columns:1fr}}</style>
 <h1>宣傳圖卡生成器</h1><p class='subhead'>依序完成草稿、審核、版型預覽與輸出下載。</p><p class='notice'>宣傳內容請自行核實來源和出處。</p><p class='status'>本機工作台｜AI 功能依 token 計費，費用與月預算會在操作時提示</p>
