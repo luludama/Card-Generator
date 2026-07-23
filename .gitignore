@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+data/card_records.json
+data/card_settings.json
+data/cards/
+.superpowers/
+.worktrees/
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+keystore.properties
+dist/android/*.apk
